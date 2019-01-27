@@ -50,43 +50,87 @@ $(function() {
     */
     describe('The menu', function() {
 
+        /* Variable needed in multiple tests in this suite
+         */
+        const bodyClassList = document.querySelector('body').classList;
+
         /* This test tests to make sure that the
          * menu is hidden by default when opening the page.
          */
         it('is hidden by default', function() {
-            const body = document.getElementsByClassName('menu-hidden');
-            expect(body.length).not.toBe(0);
-        });
+            // const bodyClassList = document.querySelector('body').classList;
+            expect(bodyClassList).toContain('menu-hidden');
+         });
 
-        /* This test tests to make sure that the
+         /* This test tests to make sure that the
          * menu opens when the menu icon is clicked and closes
          * when the menu icon is clicked again.
          */
-        it('changes visibility when the menu icon is clicked', function() {
-            //
-        });
+         it('changes visibility when the menu icon is clicked', function() {
+             const menuButton = document.querySelector('.menu-icon-link');
+             menuButton.click();
+             expect(bodyClassList).not.toContain('menu-hidden');
+             menuButton.click();
+             expect(bodyClassList).toContain('menu-hidden');
+         });
 
     });
 
-         /* TODO: Write a test that ensures the menu changes
-          * visibility when the menu icon is clicked. This test
-          * should have two expectations: does the menu display when
-          * clicked and does it hide when clicked again.
-          */
+    /* This suite is about the functionality of new feed selection.
+    * Tests to make sure the content changed when a new feed is loaded.
+    */
+    describe('New feed selection', function() {
 
-    /* TODO: Write a new test suite named "Initial Entries" */
+        /* Call loadFeed within forEach before the test can be executed.
+        * Pass loadFeed done() as it's callback to make sure it is called when loadFeed()
+        * has finished.
+        */
+        beforeEach(function(done) {
+            loadFeed(0, function() {
+                done();
+            });
+        });
 
-        /* TODO: Write a test that ensures when the loadFeed
-         * function is called and completes its work, there is at least
-         * a single .entry element within the .feed container.
-         * Remember, loadFeed() is asynchronous so this test will require
-         * the use of Jasmine's beforeEach and asynchronous done() function.
-         */
+        /* Tests to make sure there is at least a single entry element in the feed container when
+        * the asynchronous loadFead function has finished. Done is passed to the test to signal
+        * the test can be executed when done() has been called after loadFeed() has finished.
+        */
+        it('.feed container should have at least 1 entry', function(done) {
+            const totalEntriesLength = document.querySelectorAll('.feed .entry').length;
+            expect(totalEntriesLength).toBeGreaterThan(0);
+            done();
+        });
+    });
 
-    /* TODO: Write a new test suite named "New Feed Selection" */
+    /* This suite is about the functionality of initial entries.
+    * Tests to make sure there is at least a single entry element in the feed container when
+    * the asynchronous loadFead function has finished.
+    */
+    describe('Initial entries', function() {
 
-        /* TODO: Write a test that ensures when a new feed is loaded
-         * by the loadFeed function that the content actually changes.
-         * Remember, loadFeed() is asynchronous.
-         */
+        /* Call loadFeed within forEach before the test can be executed.
+        * Pass loadFeed the first item in the allFeeds array to obtain the oldFeed.
+        * Then call loadFeed again in the callback with a different item from the allFeeds array.
+        * THen call done in it's callback.
+        */
+        let oldFeedFirstTitle;
+        beforeEach(function (done) {
+            loadFeed(0, function () {
+                oldFeedFirstTitle = document.querySelectorAll('.feed article h2')[0];
+                loadFeed(2, function () {
+                    done();
+                });
+            });
+        });
+
+        /* Tests to make sure that when a new feed is loaded
+        * by the loadFeed function the content actually changes, but only after the feed has laoded
+        * (done is called).
+        */
+        it('should change content after loadFeed has finished', function(done) {
+            const newFeedFirstTitle = document.querySelectorAll('.feed article h2')[0];
+            expect(oldFeedFirstTitle).not.toEqual(newFeedFirstTitle);
+            done();
+        });
+    });
 }());
